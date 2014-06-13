@@ -4,38 +4,36 @@
         <title>facetracking</title>
         <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
         <meta charset="utf-8">
-        <style>
-            body {
-                background-color: #f0f0f0;
-                margin-left: 10%;
-                margin-right: 10%;
-                margin-top: 5%;
-                width: 40%;
-                overflow: hidden;
-                font-family: "Helvetica", Arial, Serif;
-                position: relative;
-            }
-        </style>
+
+          <script type="text/javascript" src="app/phaser.min.js"></script>
+          <script type="text/javascript" src="app/main.js"></script>
     </head>
     <body>
         <script src="app/headtrackr.js"></script>
+        <div style="width:360px;float:left">
+            <canvas id="compare" width="320" height="240" style="display:none"></canvas>
+            <video id="vid" autoplay loop width="320" height="240"></video>
+            <canvas id="overlay" width="320" height="240"></canvas>
+            <canvas id="debug" width="320" height="240"></canvas>
 
-        <canvas id="compare" width="320" height="240" style="display:none"></canvas>
-        <video id="vid" autoplay loop width="320" height="240"></video>
-        <canvas id="overlay" width="320" height="240"></canvas>
-        <canvas id="debug" width="320" height="240"></canvas>
+            <p id='gUMMessage'></p>
+            <p>Status : <span id='headtrackerMessage'></span></p>
+            <p><input type="button" onclick="htracker.stop();htracker.start();" value="reinitiate facedetection"></input>
+            <br/><br/>
+            <input type="checkbox" onclick="showProbabilityCanvas()" value="asdfasd"></input>Show probability-map</p>
 
-        <p id='gUMMessage'></p>
-        <p>Status : <span id='headtrackerMessage'></span></p>
-        <p><input type="button" onclick="htracker.stop();htracker.start();" value="reinitiate facedetection"></input>
-        <br/><br/>
-        <input type="checkbox" onclick="showProbabilityCanvas()" value="asdfasd"></input>Show probability-map</p>
-
-        <p id="face-info"></p>
-        <p id="head-info"></p>
+            <p id="face-info"></p>
+            <p id="head-info"></p>
+        </div>
+        <div style="width:420px;float:left">
+            <div id="game_div"> </div>
+        </div>
 
         <script>
           // set up video and canvas elements needed
+
+          var last_height = 9999;
+          var last_angle = 9999;
 
             var videoInput = document.getElementById('vid');
             var canvasInput = document.getElementById('compare');
@@ -97,13 +95,29 @@
                     overlayContext.rotate((Math.PI/2)-event.angle);
                     overlayContext.translate(-event.x, -event.y);
 
-                    document.getElementById("face-info").innerHTML = "<table>"
-                    +"<tr><td>x</td><td>"+event.x+"</td></tr>"
-                    +"<tr><td>y</td><td>"+event.y+"</td></tr>"
-                    +"<tr><td>width</td><td>"+event.width+"</td></tr>"
-                    +"<tr><td>height</td><td>"+event.height+"</td></tr>"
-                    +"<tr><td>angle</td><td>"+event.angle*180/3.14+"</td></tr>"
-                    +"</table>"
+                    command = "";
+                    delta_height = event.height - last_height;
+                    delta_angle = event.angle*180/3.14 - last_angle;
+                    if(delta_height < 10 && Math.abs(delta_angle) < 10) {
+                        // do nothing
+                    }
+                    else {
+                        // jump!
+                        main_state.jump();
+                        command = "Jump!";
+                    }
+                    document.getElementById("face-info").innerHTML = command;
+
+                    // document.getElementById("face-info").innerHTML = "<table>"
+                    // +"<tr><td>delta_height</td><td>"+delta_height+"</td></tr>"
+                    // +"<tr><td>x</td><td>"+event.x+"</td></tr>"
+                    // +"<tr><td>y</td><td>"+event.y+"</td></tr>"
+                    // +"<tr><td>width</td><td>"+event.width+"</td></tr>"
+                    // +"<tr><td>height</td><td>"+event.height+"</td></tr>"
+                    // +"<tr><td>angle</td><td>"+event.angle*180/3.14+"</td></tr>"
+                    // +"</table>";
+                    last_height = event.height;
+                    last_angle = event.angle*180/3.14;
                 }
             });
 
